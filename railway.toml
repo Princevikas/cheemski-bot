@@ -1,0 +1,13 @@
+[build]
+builder = "DOCKERFILE"
+
+[deploy]
+startCommand = "python main.py"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# Only rebuild this service when these paths change
+watchPaths = [
+    "Dashboard-Fresh/**",
+    "Dockerfile.dashboard"
+]

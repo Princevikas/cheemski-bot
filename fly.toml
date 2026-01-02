@@ -1,0 +1,23 @@
+# Fly.io configuration for Vocard Bot
+
+app = "cheemski-bot"
+primary_region = "sin"  # Singapore - closest to India
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  # Non-sensitive environment variables
+  # Sensitive ones are set via: fly secrets set KEY=value
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false  # Keep bot running 24/7
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256

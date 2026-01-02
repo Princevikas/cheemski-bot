@@ -1,0 +1,22 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for caching
+COPY Dashboard-Fresh/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy dashboard code
+COPY Dashboard-Fresh/ .
+
+# Copy production settings (uses env vars for secrets)
+COPY Dashboard-Fresh/settings.production.json ./settings.json
+
+# Run the dashboard
+CMD ["python", "start.py"]
+

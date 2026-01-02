@@ -1,0 +1,74 @@
+{
+    "token": "YOUR_DISCORD_BOT_TOKEN",
+    "client_id": "YOUR_CLIENT_ID",
+    "genius_token": "YOUR_GENIUS_TOKEN",
+    "mongodb_url": "mongodb+srv://username:password@cluster.mongodb.net/?appName=YourApp",
+    "mongodb_name": "Vocard",
+    "nodes": {
+        "AjieDev-V4": {
+            "host": "lava-v4.ajieblogs.eu.org",
+            "port": 443,
+            "password": "https://dsc.gg/ajidevserver",
+            "secure": true,
+            "identifier": "AjieDev-V4"
+        }
+    },
+    "prefix": "?",
+    "activity": [
+        {
+            "type": "listening",
+            "name": "/help",
+            "status": "online"
+        }
+    ],
+    "logging": {
+        "file": {
+            "path": "./logs",
+            "enable": true
+        },
+        "level": {
+            "discord": "INFO",
+            "vocard": "DEBUG",
+            "ipc_client": "INFO"
+        },
+        "max-history": 30
+    },
+    "bot_access_user": [],
+    "embed_color": "0xb3b3b3",
+    "default_max_queue": 1000,
+    "lyrics_platform": "lrclib",
+    "ipc_client": {
+        "host": "127.0.0.1",
+        "port": 443,
+        "password": "YOUR_IPC_PASSWORD",
+        "secure": false,
+        "enable": true
+    },
+    "sources_settings": {
+        "youtube": {
+            "emoji": "<:youtube:826661982760992778>",
+            "color": "0xFF0000"
+        },
+        "youtubemusic": {
+            "emoji": "<:youtube:826661982760992778>",
+            "color": "0xFF0000"
+        },
+        "spotify": {
+            "emoji": "<:spotify:826661996615172146>",
+            "color": "0x1DB954"
+        },
+        "soundcloud": {
+            "emoji": "<:soundcloud:852729280027033632>",
+            "color": "0xFF7700"
+        },
+        "applemusic": {
+            "emoji": "<:applemusic:994844332374884413>",
+            "color": "0xE298C4"
+        },
+        "others": {
+            "emoji": "🔗",
+            "color": "0xb3b3b3"
+        }
+    },
+    "version": "v2.7.2"
+}

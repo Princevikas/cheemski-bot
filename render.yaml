@@ -1,0 +1,41 @@
+# Render Blueprint - Vocard Bot & Dashboard
+# Deploy: render.com → New → Blueprint → Connect your repo
+
+services:
+  # Discord Bot - Background Worker (runs 24/7)
+  - type: worker
+    name: vocard-bot
+    runtime: python
+    buildCommand: pip install -r Vocard-Fresh/requirements.txt
+    startCommand: cd Vocard-Fresh && python main.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.4"
+      # Set these in Render Dashboard as secrets
+      - key: TOKEN
+        sync: false
+      - key: MONGODB_URL
+        sync: false
+      - key: MONGODB_NAME
+        sync: false
+
+  # Dashboard - Web Service
+  - type: web
+    name: vocard-dashboard
+    runtime: python
+    buildCommand: pip install -r Dashboard-Fresh/requirements.txt
+    startCommand: cd Dashboard-Fresh && hypercorn main:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.4"
+      - key: PORT
+        value: "10000"
+      # Set these in Render Dashboard as secrets
+      - key: CLIENT_ID
+        sync: false
+      - key: CLIENT_SECRET
+        sync: false
+      - key: REDIRECT_URI
+        sync: false
+      - key: SECRET_KEY
+        sync: false

@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="{{ session.get('language_code', user.language_code) }}">
+
+<!-- SVG Filters for Liquid Glass Effect -->
+<svg style="position: absolute; width: 0; height: 0;">
+    <defs>
+        <!-- Liquid Glass Distortion Filter -->
+        <filter id="liquid-glass-filter" x="-50%" y="-50%" width="200%" height="200%">
+            <!-- Noise generation for distortion -->
+            <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise" seed="5" />
+            <!-- Displacement map for wavy effect -->
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G"
+                result="displaced" />
+            <!-- Slight blur for glass effect -->
+            <feGaussianBlur in="displaced" stdDeviation="0.5" result="blurred" />
+            <!-- Merge with original -->
+            <feMerge>
+                <feMergeNode in="blurred" />
+            </feMerge>
+        </filter>
+
+        <!-- Stronger distortion variant -->
+        <filter id="liquid-glass-strong" x="-50%" y="-50%" width="200%" height="200%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" result="noise" seed="10" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="15" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+    </defs>
+</svg>
+
+<head>
+    <meta charset="UTF-16" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/dj-doge-favicon.png') }}" />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-style.css') }}" />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/controller.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fullplayer.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cheemscord-theme.css') }}" />
+
+
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet" />
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-sortablejs@latest/jquery-sortable.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.4.0/color-thief.min.js"
+        integrity="sha512-r2yd2GP87iHAsf2K+ARvu01VtR7Bs04la0geDLbFlB/38AruUbA5qfmtXwXx6FZBQGJRogiPtEqtfk/fnQfaYA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
+
+    <script>
+        // const userId = "{{ user.id }}";
+        const localeTexts = {
+            cancel: "{{ _('Cancel') }}",
+            confirm: "{{ _('Confirm') }}",
+            accept: "{{ _('Accept') }}",
+            copyLink: "{{ _('Link copied to clipboard') }}",
+            addTrack: "{{ _('Added {0} into the queue.') }}",
+            addMultipleTrack: "{{ _('Added {0} songs into the queue.') }}",
+            paused: "{{ _('Paused the player.') }}",
+            resumed: "{{ _('Resumed the player.') }}",
+            forward: "{{ _('Forward the player to {0}.') }}",
+            rewind: "{{ _('Rewind the player to {0}.') }}",
+            volume: "{{ _('Set volume to {0}.') }}",
+            swapTrack: "{{ _('{0} and {1} are swapped.') }}",
+            moveTrack: "{{ _('Moved {0} to {1}.') }}",
+            shuffleTracks: "{{ _('Shuffled the {0}') }}",
+            repeatTrack: "{{ _('The repeat mode has been set to {0}') }}",
+            removeTrack: "{{ _('Removed {0} from the queue.') }}",
+            removeMultiple: "{{ _('Removed {0} tracks from the queue.') }}",
+            clearQueue: "{{ _('Cleared {0} list.') }}",
+            autoplay: "{{ _('Autoplay mode is now {0}.') }}",
+            enabled: "{{ _('enabled') }}",
+            disabled: "{{ _('disabled') }}",
+            resultsFoundCount: "{{ _('Results found') }}",
+            errors: {
+                selectBotError: "{{ _('You are not able to select this bot!') }}",
+                noPlayerError: "{{ _('You need to connect a bot in order to perform this action.') }}",
+                noInboxMessage: "{{ _('No message for you at this time.') }}",
+                noEnoughTrackToShuffle: "{{ _('Add more songs to the queue before shuffling.') }}",
+            },
+            shortcuts: {
+                title: "{{ _('Keyboard Shortcuts') }}",
+                description: "{{ _('Quick access to common actions') }}",
+                close: "{{ _('Close') }}",
+                categories: {
+                    navigation: "{{ _('Navigation') }}",
+                    playbackControls: "{{ _('Playback Controls') }}",
+                    queueManagement: "{{ _('Queue Management') }}",
+                },
+                items: {
+                    showShortcuts: "{{ _('Show keyboard shortcuts') }}",
+                    focusSearch: "{{ _('Focus search bar') }}",
+                    playPause: "{{ _('Play/Pause') }}",
+                    forward10s: "{{ _('Forward 10 seconds') }}",
+                    rewind10s: "{{ _('Rewind 10 seconds') }}",
+                    previousTrack: "{{ _('Previous track') }}",
+                    nextTrack: "{{ _('Next track') }}",
+                    toggleRepeat: "{{ _('Toggle repeat mode') }}",
+                    toggleShuffle: "{{ _('Toggle shuffle') }}",
+                },
+            },
+            track: {
+                track: "{{ _('Track') }}",
+                title: "{{ _('Recommendation for this song') }}",
+                description: "{{ _('Based on your song your picked') }}",
+            },
+            playlist: {
+                variable: {
+                    name: "{{ _('Playlist name') }}",
+                    namePlaceholder: "{{ _('e.g. My playlist') }}",
+                    type: "{{ _('Playlist type') }}",
+                    standard: "{{ _('Standard Playlist') }}",
+                    online: "{{ _('Online Playlist') }}",
+                    url: "{{ _('Playlist Url') }}",
+                    urlPlaceholder: "{{ _('e.g. Youtube or Spotify playlist url') }}",
+                    create: "{{ _('Create') }}",
+                    delete: "{{ _('Delete') }}",
+                },
+                type: {
+                    playlist: "{{ _('playlist') }}",
+                    share: "{{ _('share') }}",
+                    link: "{{ _('link') }}",
+                },
+                create: {
+                    title: "{{ _('Create Playlist') }}",
+                    description: "{{ _('Create and personalize your playlist for every mood, crafted exclusively by you.') }}",
+                },
+                rename: {
+                    title: "{{ _('Rename Playlist') }}",
+                    description: "{{ _('Allows you to change the name of your existing collections of songs for better organization.') }}",
+                },
+                delete: {
+                    title: "{{ _('Delete Playlist') }}",
+                    description: "{{ _('Enables the removal of unwanted collections of songs from your library.') }}",
+                },
+            },
+            settings: {
+                variable: {
+                    headerDescription: "{{ _('Adjust the configurations on your server for an optimized experience.') }}",
+                    general: "{{ _('General') }}",
+                    header1: "{{ _('You are now listening in') }}",
+                    header2: "{{ _('My Servers') }}",
+                    description2: "{{ _('Please select a server whose settings you would like to modify') }}",
+                    header3: "{{ _('Invite the Bot to Your Server') }}",
+                    description3: "{{ _('The bot is not currently a member of the following server') }}",
+                    barTitle: "{{ _('Careful — you have unsaved changes!') }}",
+                    barAction1: "{{ _('Reset') }}",
+                    barAction2: "{{ _('Save Changes') }}",
+                    inviteText: "{{ _('Invite to this server') }}",
+                    membersText: "{{ _('members') }}",
+                },
+                prefix: {
+                    title: "{{ _('Prefix') }}",
+                    description: "{{ _('Change the default prefix for message commands.') }}",
+                },
+                language: {
+                    title: "{{ _('Language') }}",
+                    description: "{{ _('You can choose your preferred language, the bot message will change to the language you set.') }}",
+                },
+                queueType: {
+                    title: "{{ _('Queue Mode') }}",
+                    description: "{{ _('Change to another type of queue mode.') }}",
+                },
+                dj: {
+                    title: "{{ _('DJ Role') }}",
+                    description: "{{ _('Set a DJ role or remove DJ role.') }}",
+                },
+                _247: {
+                    title: "{{ _('24/7 Mode') }}",
+                    description: "{{ _('Toggles 24/7 mode, which disables automatic inactivity-based disconnects.') }}",
+                },
+                voteDisable: {
+                    title: "{{ _('Vote Bypass') }}",
+                    description: "{{ _('Toggles in the voting system provide you the option to participate or abstain from voting to skip a song.') }}",
+                },
+                controllerMsg: {
+                    title: "{{ _('Toggle Music Controller') }}",
+                    description: "{{ _('Toggles to send a message when clicking the button in the music controller.') }}",
+                },
+                duplicateTrack: {
+                    title: "{{ _('Duplicate Track') }}",
+                    description: "{{ _('Toggle Cheemski to prevent duplicate songs from queuing.') }}",
+                },
+                silentMsg: {
+                    title: "{{ _('Silent Message') }}",
+                    description: "{{ _('Toggle silent messaging to send messages without alerting.') }}"
+                },
+                stageAnnounceTemplate: {
+                    title: "{{ _('Voice Status Template') }}",
+                    description: "{{ _('Customize the channel topic template (Displayed while playing music).') }}",
+                },
+            },
+            effects: {
+                header: "{{ _('Enable Effect') }}",
+                description: "{{ _('Turn on the music sound effect.') }}",
+                reset: "{{ _('Reset all filter.') }}",
+                add: "{{ _('Applied {0} filter.') }}",
+                remove: "{{ _('Removed {0} filter.') }}",
+                tags: {
+                    none: "{{ _('None') }}",
+                    karaoke: "{{ _('karaoke') }}",
+                    tremolo: "{{ _('tremolo') }}",
+                    vibrato: "{{ _('vibrato') }}",
+                    rotation: "{{ _('rotation') }}",
+                    distortion: "{{ _('distortion') }}",
+                    lowpass: "{{ _('lowpass') }}",
+                    nightcore: "{{ _('nightcore') }}",
+                    eightD: "{{ _('8D') }}",
+                    vaporwave: "{{ _('vaporwave') }}",
+                },
+            },
+            context: {
+                playNow: "{{ _('Play now') }}",
+                playNext: "{{ _('Play next') }}",
+                addToQueue: "{{ _('Add to queue') }}",
+                removeFromQueue: "{{ _('Remove from queue') }}",
+                skipTo: "{{ _('Skip to') }}",
+                backTo: "{{ _('Back to') }}",
+                moveToTop: "{{ _('Move to top') }}",
+                moveToBottom: "{{ _('Move to bottom') }}",
+                copyLink: "{{ _('Copy link') }}",
+                recommendation: "{{ _('Recommendation') }}",
+                getLyrics: "{{ _('Get lyrics') }}",
+                playShuffle: "{{ _('Play shuffle') }}",
+                removeTrack: "{{ _('Remove track') }}",
+                addToPlaylist: "{{ _('Add to playlist') }}",
+            },
+        }
+    </script>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='js/utils.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/websocket.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/objects.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/action.min.js') }}"></script>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='js/transformer.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/squiggly-slider.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/mobile-volume.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/ambient-mode.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/fullplayer-sync.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/audio-visualizer.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/beat-detector.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/visualizer-effects.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/visualizer-manager.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/galaxy-visualizer.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/galaxy-integration.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/fullplayer-lyrics.js') }}"></script>
+    <script>
+        // Initialize wavy slider when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.getElementById('wavy-slider-container');
+            const canvas = document.getElementById('wavy-slider-canvas');
+            const positionBar = document.getElementById('position-bar');
+
+            if (container && canvas) {
+                window.wavySlider = new SquigglySlider(canvas, container, {
+                    strokeWidth: 4,
+                    wavelength: 24,
+                    amplitude: 5,
+                    animationDuration: 4000,
+                    activeColor: '#00ff88',
+                    inactiveColor: 'rgba(255, 255, 255, 0.15)',
+                    thumbColor: '#ffffff',
+                    thumbWidth: 4,
+                    thumbHeight: 16,
+                    onSeek: function (progress) {
+                        if (positionBar) {
+                            positionBar.value = progress * parseFloat(positionBar.max);
+                            positionBar.dispatchEvent(new Event('input'));
+                        }
+                    },
+                    onSeekEnd: function (progress) {
+                        if (positionBar) {
+                            positionBar.value = progress * parseFloat(positionBar.max);
+                            positionBar.dispatchEvent(new Event('change'));
+                        }
+                    }
+                });
+
+                // Initialize Verly Volume Slider & Smart Interactions
+                if (false) { // Disabled Verly for GSAP
+                    VerlyRange("volume-bar", "#00ff88");
+
+                    // Smart Volume UI Logic
+                    const volInput = document.getElementById('volume-bar');
+                    const volLabel = document.getElementById('volume-text-label');
+                    const volFill = document.getElementById('volume-fill-bar');
+                    const volWrap = document.getElementById('verly-volume-wrap');
+
+                    function updateVol(val) {
+                        // Smart Percentage Display
+                        if (volLabel) volLabel.innerText = `Vol: ${Math.round(val)}%`;
+
+                        // Fill Animation
+                        if (volFill) volFill.style.width = `${val}%`;
+
+                        // Dynamic Color Shift (Green -> Purple/Pink)
+                        // Rotate hue based on value (0-100 mapped to 0-180deg shift)
+                        if (volWrap) {
+                            const hue = (val / 100) * 180;
+                            volWrap.style.filter = `hue-rotate(${hue}deg)`;
+                        }
+                    }
+
+                    if (volInput) {
+                        // Hook into input events
+                        volInput.addEventListener('input', (e) => updateVol(e.target.value));
+                        volInput.addEventListener('change', (e) => updateVol(e.target.value));
+
+                        // Initial update
+                        setTimeout(() => updateVol(volInput.value), 500); // Delay to let Verly init
+                    }
+                }
+
+                // Initialize GSAP Arc Slider for Volume
+                const volWrap = document.getElementById('gsap-volume-wrap');
+                const volTrack = document.getElementById('vol-track');
+                const volFill = document.getElementById('vol-fill');
+                const volKnob = document.getElementById('vol-knob');
+                const volInput = document.getElementById('volume-bar');
+                const volLabel = document.getElementById('volume-text-label');
+
+                if (false) { // Disabled - Using SquigglyVolumeSlider instead
+                    // Quadratic Bezier Setup
+                    const P0 = { x: 10, y: 80 };
+                    const P1 = { x: 160, y: 10 };
+                    const P2 = { x: 310, y: 80 };
+
+                    // Mute functionality
+                    let lastVol = 50;
+                    const muteBtn = document.getElementById('volume-mute-btn');
+                    if (muteBtn) {
+                        muteBtn.onclick = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const current = parseFloat(volInput.value);
+                            let target = 0;
+                            if (current > 0) {
+                                lastVol = current;
+                                target = 0;
+                            } else {
+                                target = lastVol || 50;
+                            }
+                            const pct = target / 100;
+                            updateVolume(pct);
+                            gsap.set(proxy, { x: pct * 300 });
+                        };
+                    }
+
+                    // Sine Wave State
+                    let phase = 0;
+                    const segments = 60;
+                    const pathLen = 350;
+                    gsap.set(volFill, { strokeDasharray: pathLen, strokeDashoffset: pathLen });
+
+                    function updateWave() {
+                        phase -= 0.15; // Animation Speed
+
+                        let d = `M ${P0.x} ${P0.y}`;
+                        for (let i = 1; i <= segments; i++) {
+                            const t = i / segments;
+                            // Bezier Point
+                            const inv = 1 - t;
+                            const bx = inv * inv * P0.x + 2 * inv * t * P1.x + t * t * P2.x;
+                            const by = inv * inv * P0.y + 2 * inv * t * P1.y + t * t * P2.y;
+
+                            // Normal Vector
+                            const tx = 2 * (1 - t) * (P1.x - P0.x) + 2 * t * (P2.x - P1.x);
+                            const ty = 2 * (1 - t) * (P1.y - P0.y) + 2 * t * (P2.y - P1.y);
+                            const len = Math.sqrt(tx * tx + ty * ty);
+                            const nx = -ty / len;
+                            const ny = tx / len;
+
+                            // Sine Offset
+                            const wave = Math.sin(t * 15 + phase) * 2.5;
+                            d += ` L ${bx + nx * wave} ${by + ny * wave}`;
+                        }
+
+                        if (volTrack) volTrack.setAttribute("d", d);
+                        if (volFill) volFill.setAttribute("d", d);
+                    }
+
+                    gsap.ticker.add(updateWave);
+
+                    function updateVolume(progress) {
+                        progress = Math.max(0, Math.min(1, progress));
+
+                        // 1. Knob Position (Ride the Wave)
+                        const inv = 1 - progress;
+                        const bx = inv * inv * P0.x + 2 * inv * progress * P1.x + progress * progress * P2.x;
+                        const by = inv * inv * P0.y + 2 * inv * progress * P1.y + progress * progress * P2.y;
+
+                        const tx = 2 * (1 - progress) * (P1.x - P0.x) + 2 * progress * (P2.x - P1.x);
+                        const ty = 2 * (1 - progress) * (P1.y - P0.y) + 2 * progress * (P2.y - P1.y);
+                        const len = Math.sqrt(tx * tx + ty * ty);
+                        const nx = -ty / len;
+                        const ny = tx / len;
+                        const wave = Math.sin(progress * 15 + phase) * 2.5;
+
+                        gsap.set(volKnob, { attr: { cx: bx + nx * wave, cy: by + ny * wave } });
+
+                        // 2. Fill
+                        gsap.set(volFill, { strokeDashoffset: pathLen * (1 - progress) });
+
+                        // 3. Label
+                        const val = Math.round(progress * 100);
+                        if (volLabel) volLabel.innerText = `Vol: ${val}%`;
+
+                        // 4. Input Sync
+                        if (volInput && volInput.value != val) {
+                            volInput.value = val;
+                            volInput.dispatchEvent(new Event('change'));
+                        }
+
+                        // 5. Colors
+                        const hue = progress * 180;
+                        volFill.style.filter = `hue-rotate(${hue}deg) drop-shadow(0 0 5px rgba(0,255,136,0.6))`;
+                        volKnob.style.fill = `hsl(${150 + hue}, 100%, 90%)`;
+                    }
+
+                    // Draggable Proxy
+                    const proxy = document.createElement("div");
+                    const initProgress = (parseFloat(volInput.value) || 0) / 100;
+                    gsap.set(proxy, { x: initProgress * 300 });
+                    updateVolume(initProgress); // Initial render
+
+                    Draggable.create(proxy, {
+                        type: "x",
+                        trigger: "#gsap-volume-wrap",
+                        bounds: { minX: 0, maxX: 300 },
+                        onDrag: function () {
+                            updateVolume(this.x / 300);
+                        },
+                        onThrowUpdate: function () {
+                            updateVolume(this.x / 300);
+                        }
+                    });
+
+                    // Sync Knob to Ticker for Wave Motion
+                    gsap.ticker.add(() => {
+                        const currentX = gsap.getProperty(proxy, "x");
+                        updateVolume(currentX / 300);
+                    });
+                }
+
+                // Initialize Squiggly Volume Slider (Parabolic Arc)
+                const volCanvas = document.getElementById('squiggly-volume-canvas');
+                const volContainer = document.getElementById('squiggly-volume-container');
+                const volInputNew = document.getElementById('volume-bar');
+                const volLabelNew = document.getElementById('volume-text-label');
+                const muteBtnNew = document.getElementById('volume-mute-btn');
+
+                if (volCanvas && volContainer && typeof SquigglyVolumeSlider !== 'undefined') {
+                    window.volumeSlider = new SquigglyVolumeSlider(volCanvas, volContainer, {
+                        initialVolume: (typeof player !== 'undefined' && player.volume !== null) ? player.volume : parseInt(volInputNew.value) || 50,
+                        labelElement: volLabelNew,
+                        muteButton: muteBtnNew,
+                        strokeWidth: 4,
+                        amplitude: 3,
+                        thumbRadius: 10,
+                        onChange: function (volume) {
+                            // Sync hidden input
+                            if (volInputNew) {
+                                volInputNew.value = volume;
+                                volInputNew.dispatchEvent(new Event('change'));
+                            }
+                        }
+                    });
+
+                    // Fix: Re-sync volume after player loads (delayed)
+                    setTimeout(function () {
+                        if (typeof player !== 'undefined' && player.volume !== null && window.volumeSlider) {
+                            window.volumeSlider.setVolume(player.volume);
+                        }
+                    }, 2000); // Wait 2 seconds for player to fully load
+                }
+
+                // Sync wavy slider with player position updates
+                // Use interval to poll the position bar value
+                setInterval(function () {
+                    if (window.wavySlider && positionBar && !window.wavySlider.isDragging) {
+                        const max = parseFloat(positionBar.max) || 500;
+                        const value = parseFloat(positionBar.value) || 0;
+                        const progress = value / max;
+                        window.wavySlider.setProgress(progress);
+                    }
+                }, 100);
+            }
+        });
+    </script>
+
+    <title>Cheemski</title>
+</head>
+
+<body>
+    <!-- Cheemscord Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-ring">
+                <div class="ring-glow"></div>
+                <img src="{{ url_for('static', filename='images/business-doge.png') }}" alt="Cheems"
+                    class="loading-doge">
+            </div>
+            <div class="loading-text">
+                <span class="loading-title">Cheemscord</span>
+                <p class="loading-status">{{ _('Connecting to server') }}</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Hide loading screen when page is ready
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 800);
+        });
+    </script>
+    <div class="main-grid-container">
+        {% include "header.html" %} {% include "menu.html" %}
+        <div id="menu-overlay" class="mobile-overlay"></div>
+        <div class="main-container">
+            <div class="warning-bar">
+                <div class="loader" style="width: 14px"></div>
+                <p>{{ _("Some errors occurred and the dashboard could not be connected") }}</p>
+            </div>
+            <div class="sections error-container" id="bot-not-found">
+                <img src="{{ url_for('static', filename='img/not-found.svg') }}" alt />
+                <div class="message">
+                    <h3>{{ _("Can't Find You on Discord") }}</h3>
+                    <p>
+                        {{ _("I'm unable to locate you in any Discord server. Please check that you've invited our bot
+                        and granted it the necessary
+                        permissions to access your server information.") }}
+                    </p>
+                </div>
+                <a href=".">
+                    <div class="reload-btn">
+                        <p>{{ _("Reload Page") }}</p>
+                    </div>
+                </a>
+            </div>
+            <div class="sections error-container" id="no-history-found">
+                <img src="{{ url_for('static', filename='img/no-history.svg') }}" alt />
+                <div class="message">
+                    <h3>{{ _("No Hisotry Searches Found") }}</h3>
+                    <p>
+                        {{ _("It seems like you haven't searched for any songs yet. No worries, your musical journey can
+                        start right now! Simply enter the
+                        name of your favorite song or artist in the search bar.") }}
+                    </p>
+                </div>
+                <div class="reload-btn" id="focus-search-query">
+                    <p>{{ _("Search Now") }}</p>
+                </div>
+            </div>
+            <div class="sections error-container" id="no-server-found">
+                <img src="{{ url_for('static', filename='img/no-servers.svg') }}" alt />
+                <div class="message">
+                    <h3>{{ _("Server Not Detected") }}</h3>
+                    <p>
+                        {{ _("Ensure that I'm added to your server. Please note, you must possess 'Manage Guild'
+                        permissions on the server you wish to
+                        manage.") }}
+                    </p>
+                </div>
+                <div class="reload-btn" id="reload-settings-page-btn">
+                    <p>{{ _("Refresh page") }}</p>
+                </div>
+            </div>
+            <div class="sections error-container" id="no-lyrics-found">
+                <img src="{{ url_for('static', filename='img/no-history.svg') }}" alt />
+                <div class="message">
+                    <h3>{{ _("Lyrics Not Found") }}</h3>
+                    <p>{{ _("Sorry, but I'm unable to search for the lyrics of this song. Please try searching online.")
+                        }}</p>
+                </div>
+            </div>
+            <div class="sections error-container" id="rate-limited">
+                <img src="{{ url_for('static', filename='img/rate-limited.svg') }}" alt />
+                <div class="message">
+                    <h3>{{ _("Temporary Access Limit Reached") }}</h3>
+                    <p>
+                        {{ _("It appears you've been quite active and have reached the limit for requests. Don't worry,
+                        this is only temporary. You'll be
+                        able to continue your activities after a short break.") }}
+                    </p>
+                </div>
+                <a href=".">
+                    <div class="reload-btn">
+                        <p>{{ _("Reload Page") }}</p>
+                    </div>
+                </a>
+            </div>
+            <div class="sections" id="main-page">
+                <div class="section">
+                    <div class="header">
+                        <div class="sub-title">
+                            <h2>{{ _("Recently played") }}</h2>
+                        </div>
+                    </div>
+                    <div class="card-container" id="history-tracks">
+                        {% for i in range(10) %}
+                        <div class="card skeleton">
+                            <div class="thumbnail">
+                                <img alt />
+                            </div>
+                            <div class="track-info">
+                                <p class="title"></p>
+                                <p class="description"></p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="section">
+                    <div class="header">
+                        <div class="sub-title">
+                            <p>{{ _("Based on your song playback history") }}</p>
+                            <h2>{{ _("Recommendation for today") }}</h2>
+                        </div>
+                    </div>
+                    <div class="card-container recommendation-tracks" id="recommendation-tracks"></div>
+                    <div class="center">
+                        <div class="loader" id="recommendation-tracks-loader"></div>
+                    </div>
+                </div>
+                {% include "footer.html" %}
+            </div>
+            <div class="sections" id="explore-page">
+                <div class="section">
+                    <div class="header">
+                        <div class="sub-title">
+                            <p>{{ _("Top 50 Global Hits") }}</p>
+                            <h2>{{ _("Trending Songs") }}</h2>
+                        </div>
+                    </div>
+                    <div class="card-container" id="global-top-tracks">
+                        {% for i in range(10) %}
+                        <div class="card skeleton">
+                            <div class="thumbnail">
+                                <img alt />
+                            </div>
+                            <div class="track-info">
+                                <p class="title"></p>
+                                <p class="description"></p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% include "footer.html" %}
+            </div>
+            <div class="sections" id="user-settings-page">
+                <div class="section">
+                    <div class="header">
+                        <div class="sub-title">
+                            <p>{{ _("Manage your account settings and preferences") }}</p>
+                            <h2>{{ _("Settings") }}</h2>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="info">
+                            <h3 class="title">{{ _('Language') }}</h3>
+                            <p class="desc">{{ _("Default language for public dashboard.") }}</p>
+                        </div>
+                        <div class="select-container">
+                            <div class="selected-container">
+                                <p>{{ languages.get(session.get('language_code', user.language_code), {}).get('name',
+                                    '') }}</p>
+                                <span class="material-symbols-outlined">keyboard_arrow_up</span>
+                            </div>
+                            <div class="options">
+                                {% for key, value in languages.items() %}
+                                <a href="{{ url_for('set_language', language=key) }}">
+                                    <p class="option">{{ value["name"] }}</p>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-column">
+                        <div class="settings-row">
+                            <div class="info">
+                                <h3 class="title">{{ _('Dark Mode') }}</h3>
+                                <p class="desc">{{ _('Quickly toggle between light and dark modes for a personalized.')
+                                    }}</p>
+                            </div>
+                            <label class="switch">
+                                <input data-id="toggle-dark-mode" type="checkbox" checked />
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                        <div class="color-select-container">
+                            <div class="color" data-id="purple" style="background-color: #8957ff"></div>
+                            <div class="color" data-id="pink" style="background-color: #fa8abb"></div>
+                            <div class="color" data-id="red" style="background-color: #ff3366"></div>
+                            <div class="color" data-id="yellow" style="background-color: #ffbb00"></div>
+                            <div class="color" data-id="blue" style="background-color: #02bbff"></div>
+                            <div class="color" data-id="green" style="background-color: #00cc88"></div>
+                        </div>
+                    </div>
+                </div>
+                {% include "footer.html" %}
+            </div>
+            <div class="sections" id="tools-page">
+                <div class="section">
+                    <div class="header">
+                        <div class="sub-title">
+                            <p>{{ _("Admin tools and utilities") }}</p>
+                            <h2>{{ _("Tools") }}</h2>
+                        </div>
+                    </div>
+
+                    <!-- Announce Panel -->
+                    <div class="tool-panel" id="announce-panel">
+                        <h3>📢 {{ _("Send Announcement") }}</h3>
+                        <div class="tool-form">
+                            <div class="form-row">
+                                <label>{{ _("Server") }}</label>
+                                <select id="announce-guild-select" class="tool-select">
+                                    <option value="">{{ _("Select a server...") }}</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <label>{{ _("Channel") }}</label>
+                                <select id="announce-channel-select" class="tool-select" disabled>
+                                    <option value="">{{ _("Select a channel...") }}</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <label>{{ _("Title") }}</label>
+                                <input type="text" id="announce-title" class="tool-input"
+                                    placeholder="{{ _('Announcement title...') }}" maxlength="256">
+                            </div>
+                            <div class="form-row">
+                                <label>{{ _("Description") }}</label>
+                                <textarea id="announce-description" class="tool-textarea"
+                                    placeholder="{{ _('Announcement content...') }}" maxlength="4000"></textarea>
+                            </div>
+                            <div class="form-row inline">
+                                <div class="form-col">
+                                    <label>{{ _("Color") }}</label>
+                                    <input type="color" id="announce-color" class="tool-color" value="#3498db">
+                                </div>
+                                <div class="form-col">
+                                    <label>{{ _("Image URL") }}</label>
+                                    <input type="text" id="announce-image" class="tool-input"
+                                        placeholder="{{ _('Optional image URL...') }}">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="announce-anonymous">
+                                    <span>{{ _("Anonymous (hide your name)") }}</span>
+                                </label>
+                            </div>
+                            <button id="send-announce-btn" class="tool-btn primary" disabled>
+                                <span class="material-symbols-outlined">send</span>
+                                {{ _("Send Announcement") }}
+                            </button>
+
+                            <!-- Announce Role Permissions (Admin only) -->
+                            <div class="announce-roles-section">
+                                <h4>🔐 {{ _("Who Can Announce") }}</h4>
+                                <p class="section-note">{{ _("Moderators always have access. Add additional roles
+                                    below:") }}</p>
+                                <div class="form-row inline-form">
+                                    <select id="announce-role-select" class="tool-select" disabled>
+                                        <option value="">{{ _("Select a role to add...") }}</option>
+                                    </select>
+                                    <button id="add-announce-role-btn" class="tool-btn small" disabled>
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                </div>
+                                <div id="announce-roles-list" class="roles-list">
+                                    <div class="no-roles-text">{{ _("Select a server to configure roles") }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audit Logging Panel -->
+                    <div class="tool-panel" id="audit-panel">
+                        <h3>🛡️ {{ _("Audit Logging") }}</h3>
+                        <div class="tool-form">
+                            <div class="form-row">
+                                <label>{{ _("Server") }}</label>
+                                <select id="audit-guild-select" class="tool-select">
+                                    <option value="">{{ _("Select a server...") }}</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="audit-enable" disabled>
+                                    <span>{{ _("Enable Audit Logging") }}</span>
+                                </label>
+                            </div>
+                            <div class="form-row">
+                                <label>{{ _("Audit Log Channel") }}</label>
+                                <select id="audit-channel-select" class="tool-select" disabled>
+                                    <option value="">{{ _("Select a channel...") }}</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <label>{{ _("Auditors (User IDs)") }}</label>
+                                <div class="form-row inline">
+                                    <input type="text" id="audit-new-auditor" class="tool-input"
+                                        placeholder="{{ _('Enter User ID') }}">
+                                    <button id="audit-add-auditor-btn" class="tool-btn secondary"
+                                        style="padding: 0.5rem 1rem;">
+                                        <span class="material-symbols-outlined">add</span>
+                                    </button>
+                                </div>
+                                <div id="audit-list" class="tool-list"
+                                    style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    <!-- Dynamic Auditor Tags -->
+                                </div>
+                            </div>
+                            <button id="save-audit-btn" class="tool-btn primary">
+                                <span class="material-symbols-outlined">save</span>
+                                {{ _("Save Audit Settings") }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Session Management Panel -->
+                    <div class="tool-panel" id="session-panel">
+                        <h3>💾 {{ _("Session Management") }}</h3>
+                        <div class="tool-form">
+                            <div class="form-row">
+                                <label>{{ _("Saved Sessions") }}</label>
+                                <div id="session-list" class="tool-list"
+                                    style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <!-- Dynamic Session Items -->
+                                    <p style="color: var(--text-muted); font-style: italic;">{{ _("No active sessions
+                                        found.") }}</p>
+                                </div>
+                            </div>
+                            <button id="clear-sessions-btn" class="tool-btn secondary"
+                                style="color: var(--alert-color-red); border-color: rgba(255, 59, 48, 0.3);">
+                                <span class="material-symbols-outlined">delete_forever</span>
+                                {{ _("Clear All Sessions") }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Welcomer Panel -->
+                    <div class="tool-panel" id="welcomer-panel">
+                        <h3>🎉 {{ _("Welcome & Goodbye") }}</h3>
+                        <div class="tool-form">
+                            <div class="form-row">
+                                <label>{{ _("Server") }}</label>
+                                <select id="welcomer-guild-select" class="tool-select">
+                                    <option value="">{{ _("Select a server...") }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Welcome Settings -->
+                            <div class="welcomer-section">
+                                <h4>👋 {{ _("Welcome Messages") }}</h4>
+                                <div class="form-row">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="welcomer-enable" disabled>
+                                        <span>{{ _("Enable Welcome Messages") }}</span>
+                                    </label>
+                                </div>
+                                <div class="form-row">
+                                    <label>{{ _("Welcome Channel") }}</label>
+                                    <select id="welcomer-channel-select" class="tool-select" disabled>
+                                        <option value="">{{ _("Select a channel...") }}</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label>{{ _("Background Image URL") }}</label>
+                                    <input type="text" id="welcomer-background" class="tool-input"
+                                        placeholder="{{ _('https://example.com/image.png') }}" disabled>
+                                </div>
+                                <div class="form-row">
+                                    <label>{{ _("Welcome Message") }}</label>
+                                    <textarea id="welcomer-message" class="tool-textarea" disabled
+                                        placeholder="{{ _('Welcome {user} to **{server}**! You are member **#{count}**!') }}"></textarea>
+                                    <p class="section-note">{{ _("Variables: {user}, {username}, {server}, {count}") }}
+                                    </p>
+                                </div>
+                                <div class="form-row">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="welcomer-show-card" checked disabled>
+                                        <span>{{ _("Show Welcome Card Image") }}</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Goodbye Settings -->
+                            <div class="welcomer-section"
+                                style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                                <h4>👋 {{ _("Goodbye Messages") }}</h4>
+                                <div class="form-row">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="goodbye-enable" disabled>
+                                        <span>{{ _("Enable Goodbye Messages") }}</span>
+                                    </label>
+                                </div>
+                                <div class="form-row">
+                                    <label>{{ _("Goodbye Channel") }}</label>
+                                    <select id="goodbye-channel-select" class="tool-select" disabled>
+                                        <option value="">{{ _("Select a channel...") }}</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label>{{ _("Goodbye Message") }}</label>
+                                    <textarea id="goodbye-message" class="tool-textarea" disabled
+                                        placeholder="{{ _('Goodbye **{user}**! We will miss you.') }}"></textarea>
+                                </div>
+                            </div>
+
+                            <button id="save-welcomer-btn" class="tool-btn primary" disabled>
+                                <span class="material-symbols-outlined">save</span>
+                                {{ _("Save Welcomer Settings") }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Admin Tools Panel -->
+                    <div class="tool-panel" id="admin-tools-panel">
+                        <h3>⚙️ {{ _("Admin Tools") }}</h3>
+                        <div class="tool-actions">
+                            <button id="force-sync-btn" class="tool-btn secondary">
+                                <span class="material-symbols-outlined">sync</span>
+                                {{ _("Force Sync Commands") }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% include "footer.html" %}
+            </div>
+        </div>
+        {% include "queue.html" %}
+        <div id="queue-overlay" class="mobile-overlay"></div>
+
+        <!-- Fullplayer Overlay (Mobile) -->
+        <div id="fullplayer" class="fullplayer-overlay">
+            <canvas id="fp-galaxy-canvas" class="fp-galaxy-canvas"></canvas>
+            <div class="fp-background"></div>
+            <div class="fp-overlay"></div>
+            <div class="fullplayer-content">
+                <div class="fp-header">
+                    <div class="fp-close" onclick="closeFullPlayer()">
+                        <span class="material-symbols-outlined">keyboard_arrow_down</span>
+                    </div>
+                    <div class="fp-source">
+                        <span>Now Playing</span>
+                    </div>
+                    <div class="fp-visualizer-controls">
+                        <button class="fp-viz-btn" onclick="window.fpVisualizer?.prevEffect()"
+                            title="Previous Effect (← or V)">
+                            <span class="material-symbols-outlined">skip_previous</span>
+                        </button>
+                        <button class="fp-viz-btn" onclick="window.fpVisualizer?.nextEffect()"
+                            title="Next Effect (→ or Shift+V)">
+                            <span class="material-symbols-outlined">skip_next</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="fp-main">
+                    <div class="fp-player">
+                        <div class="fp-artwork">
+                            <img id="fp-artwork-img" src="" alt="Album Art">
+                        </div>
+                        <div class="fp-info">
+                            <div class="fp-title" id="fp-title">Track Title</div>
+                            <div class="fp-artist" id="fp-artist">Artist Name</div>
+                            <div class="fp-progress">
+                                <canvas id="fp-squiggly-canvas"></canvas>
+                                <div class="fp-time">
+                                    <span id="fp-current-time">0:00</span>
+                                    <span id="fp-duration">0:00</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fp-controls">
+                            <div class="fp-btn" id="fp-shuffle-btn">
+                                <span class="material-symbols-outlined">shuffle</span>
+                            </div>
+                            <div class="fp-btn" id="fp-prev-btn">
+                                <span class="material-symbols-outlined">skip_previous</span>
+                            </div>
+                            <div class="fp-btn fp-play-btn" id="fp-play-btn">
+                                <span class="material-symbols-outlined">play_arrow</span>
+                            </div>
+                            <div class="fp-btn" id="fp-next-btn">
+                                <span class="material-symbols-outlined">skip_next</span>
+                            </div>
+                            <div class="fp-btn" id="fp-repeat-btn">
+                                <span class="material-symbols-outlined">repeat</span>
+                            </div>
+                        </div>
+                        <div class="fp-extras">
+                            <div class="fp-extra-btn" id="fp-lyrics-btn" onclick="toggleFpLyrics()">
+                                <span class="material-symbols-outlined">lyrics</span>
+                            </div>
+                            <div class="fp-extra-btn" id="fp-queue-btn"
+                                onclick="closeFullPlayer(); document.querySelector('.queue-container').classList.add('active'); document.getElementById('queue-overlay').classList.add('active');">
+                                <span class="material-symbols-outlined">queue_music</span>
+                            </div>
+                        </div>
+                        <!-- Lyrics Panel -->
+                        <div class="fp-lyrics-panel" id="fp-lyrics-panel">
+                            <div class="fp-lyrics-header">
+                                <span>🎤 Lyrics</span>
+                                <span class="fp-lyrics-close" onclick="toggleFpLyrics()">✕</span>
+                            </div>
+                            <div class="fp-lyrics-content" id="fp-lyrics-content">
+                                <div class="fp-lyrics-loading">Loading lyrics...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include "controller.html" %}
+    </div>
+
+</body>
+
+</html>

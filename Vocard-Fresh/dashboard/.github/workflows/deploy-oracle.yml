@@ -1,0 +1,26 @@
+name: Deploy to Oracle Cloud
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Oracle Server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ubuntu
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          script: |
+            cd ~/dashboard
+            git pull origin main || git pull origin master
+            source venv/bin/activate
+            pip install -r requirements.txt --quiet
+            pkill -f hypercorn || true
+            nohup hypercorn main:app --bind 0.0.0.0:5000 > /tmp/dashboard.log 2>&1 &
+            echo "Dashboard restarted successfully!"

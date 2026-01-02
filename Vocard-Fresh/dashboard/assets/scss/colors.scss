@@ -1,0 +1,125 @@
+/* Main Color - Spotify-Inspired Dark Theme */
+:root {
+	// Spotify-style dark backgrounds
+	--bg-dark: #000000;
+	--bg: #121212;
+	--bg-light: #181818;
+	--bg-elevated: #282828;
+	--bg-highlight: #333333;
+
+	// Text colors
+	--text: #ffffff;
+	--text-muted: #b3b3b3;
+	--text-subdued: #6a6a6a;
+
+	// Spotify green as default primary
+	--primary: #1DB954;
+	--primary-hover: #1ed760;
+	--active-text: #1DB954;
+
+	--loadingStart: hsl(200, 20%, 70%);
+	--loadingEnd: hsl(200, 20%, 95%);
+	--red: #e91429;
+
+	color: var(--text);
+
+	--alert-color-red: rgba(233, 20, 41, 0.7);
+	--alert-color-green: rgba(29, 185, 84, 0.7);
+	--alert-color-yellow: rgba(255, 211, 44, 0.7);
+
+	// Card/container styling
+	--card-bg: #181818;
+	--card-hover: #282828;
+	--border-subtle: rgba(255, 255, 255, 0.1);
+}
+
+.light-theme {
+	--bg-dark: hsl(0 0% 100%);
+	--bg: hsl(0 0% 95%);
+	--bg-light: hsl(0 0% 90%);
+	--bg-elevated: hsl(0 0% 85%);
+	--bg-highlight: hsl(0 0% 80%);
+
+	--text: hsl(0 0% 5%);
+	--text-muted: hsl(0 0% 30%);
+	--text-subdued: hsl(0 0% 50%);
+
+	--loadingStart: hsl(200, 9%, 47%);
+	--loadingEnd: hsl(200, 2%, 63%);
+	--red: #fd8e8e;
+
+	--alert-color-red: rgba(255, 168, 150, 0.7);
+	--alert-color-green: rgba(133, 198, 143, 0.7);
+	--alert-color-yellow: rgba(255, 234, 153, 0.7);
+
+	--card-bg: hsl(0 0% 92%);
+	--card-hover: hsl(0 0% 88%);
+	--border-subtle: rgba(0, 0, 0, 0.1);
+}
+
+/* Theme Color Options */
+.primary-spotify {
+	--primary: #1DB954;
+	--primary-hover: #1ed760;
+	--active-text: #1DB954;
+}
+
+.primary-purple {
+	--primary: #8957ff;
+	--primary-hover: #9f75ff;
+	--active-text: #7a4de4;
+
+	&.light-theme {
+		--active-text: #aa9ff6;
+	}
+}
+
+.primary-pink {
+	--primary: #fa8abb;
+	--primary-hover: #ff9ec9;
+	--active-text: #dc80a7;
+
+	&.light-theme {
+		--active-text: #ffdbdb;
+	}
+}
+
+.primary-red {
+	--primary: #ff3366;
+	--primary-hover: #ff4d7a;
+	--active-text: #e02d5a;
+
+	&.light-theme {
+		--active-text: #fcccd8;
+	}
+}
+
+.primary-yellow {
+	--primary: #ffbb00;
+	--primary-hover: #ffc61a;
+	--active-text: #e4a701;
+
+	&.light-theme {
+		--active-text: #fde9b8;
+	}
+}
+
+.primary-blue {
+	--primary: #02bbff;
+	--primary-hover: #1cc5ff;
+	--active-text: #02a0d9;
+
+	&.light-theme {
+		--active-text: #a0e1f8;
+	}
+}
+
+.primary-green {
+	--primary: #00cc88;
+	--primary-hover: #00e699;
+	--active-text: #01a26c;
+
+	&.light-theme {
+		--active-text: #a5f8dc;
+	}
+}

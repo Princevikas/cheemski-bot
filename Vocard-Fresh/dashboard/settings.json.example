@@ -1,0 +1,12 @@
+{
+    "host": "0.0.0.0",
+    "port": 443,
+    "password": "YOUR_IPC_PASSWORD",
+    "client_id": "YOUR_CLIENT_ID",
+    "client_secret_id": "YOUR_CLIENT_SECRET",
+    "secret_key": "YOUR_SECRET_KEY",
+    "redirect_url": "http://localhost:443/callback",
+    "logging": {
+        "level": "INFO"
+    }
+}

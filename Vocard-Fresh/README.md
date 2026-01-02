@@ -45,12 +45,46 @@ cheemski-bot/
 
 ---
 
+## 📦 Requirements
+
+### Bot Dependencies
+```
+discord.py==2.5.2       # Discord API
+motor==3.6.0            # MongoDB async driver
+aiohttp>=3.11.0         # HTTP client
+lyricsgenius==3.0.1     # Genius lyrics
+PyNaCl>=1.5.0           # Voice encryption
+yt-dlp>=2024.0.0        # YouTube downloader
+Pillow>=10.0.0          # Image processing
+akinator>=2.0.2         # Akinator game
+```
+
+### Dashboard Dependencies
+```
+quart==0.20.0           # Async Flask-like framework
+quart_babel==1.0.7      # Internationalization
+hypercorn>=0.16.0       # ASGI server
+websockets>=12.0        # Real-time communication
+gunicorn>=21.0.0        # Production server
+```
+
+### External Services Required
+- **MongoDB** - Database (Atlas recommended)
+- **Lavalink v4** - Audio streaming server
+- **Discord Application** - Bot token
+
+### Optional APIs
+- **Tenor API** - GIFs (for fun commands)
+- **Genius API** - Song lyrics
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.10+
 - MongoDB database
-- Lavalink server
+- Lavalink server (v4)
 - Discord bot token
 
 ### Bot Installation
@@ -79,6 +113,35 @@ python main.py
 ```
 
 **Full guide:** [INSTALLATION.md](Vocard-Fresh/INSTALLATION.md)
+
+---
+
+## ⚙️ Configuration
+
+### Bot Settings (`settings.json`)
+```json
+{
+    "token": "YOUR_DISCORD_BOT_TOKEN",
+    "client_id": "YOUR_CLIENT_ID",
+    "genius_token": "YOUR_GENIUS_TOKEN (optional)",
+    "mongodb_url": "YOUR_MONGODB_CONNECTION_STRING",
+    "mongodb_name": "Vocard"
+}
+```
+
+### Lavalink Nodes (`nodes.json`)
+```json
+{
+    "nodes": {
+        "Local-Node": {
+            "host": "localhost",
+            "port": 2333,
+            "password": "youshallnotpass",
+            "secure": false
+        }
+    }
+}
+```
 
 ---
 

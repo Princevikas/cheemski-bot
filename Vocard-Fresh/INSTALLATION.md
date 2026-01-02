@@ -87,7 +87,7 @@ cp .env.example .env
 2. Edit `.env` with your credentials:
 ```env
 DISCORD_TOKEN=your_bot_token_here
-MONGODB_URL=mongodb+srv://username:password@cluster.mongodb.net/
+MONGODB_URL=your_mongodb_connection_string_here
 GENIUS_TOKEN=your_genius_token_here
 TENOR_API_KEY=your_tenor_api_key_here
 ```

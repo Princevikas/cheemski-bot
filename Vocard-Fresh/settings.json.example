@@ -2,7 +2,7 @@
     "token": "YOUR_DISCORD_BOT_TOKEN",
     "client_id": "YOUR_CLIENT_ID",
     "genius_token": "YOUR_GENIUS_TOKEN",
-    "mongodb_url": "mongodb+srv://username:password@cluster.mongodb.net/?appName=YourApp",
+    "mongodb_url": "YOUR_MONGODB_CONNECTION_STRING",
     "mongodb_name": "Vocard",
     "nodes": {
         "AjieDev-V4": {
